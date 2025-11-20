@@ -9,5 +9,5 @@ Temperature_Unit=celsius
 ; Valid values: mm, inch
 Precipitation_Unit=mm
 
-; Valid values: km/h, mph, m/s, knots
-Wind_Speed_Unit=km/h
+; Valid values: kmh, mph, ms, knots
+Wind_Speed_Unit=kmh
