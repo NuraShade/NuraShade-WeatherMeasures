@@ -20,7 +20,16 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
+      with:
+        # Ensure line endings are handled correctly
+        persist-credentials: false
       
+    - name: Set up environment
+      run: |
+        # Set UTF-8 locale to handle different encodings
+        echo "LANG=C.UTF-8" >> $GITHUB_ENV
+        echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
+        
     - name: Find Weather Measure Files
       id: find_files
       run: |
@@ -63,9 +72,21 @@ jobs:
       run: |
         echo "Validating CurrentForecast.inc at path: $CURRENT_FILE"
         
-        # Check for required measures
-        if ! grep -q "Measure_Weather_Current_Parent" "$CURRENT_FILE"; then
+        # Convert UTF-16 to UTF-8 if needed
+        if file "$CURRENT_FILE" | grep -q "UTF-16"; then
+          echo "Converting UTF-16 to UTF-8"
+          TEMP_FILE=$(mktemp)
+          iconv -f UTF-16LE -t UTF-8 "$CURRENT_FILE" > "$TEMP_FILE"
+          CURRENT_FILE_UTF8="$TEMP_FILE"
+        else
+          CURRENT_FILE_UTF8="$CURRENT_FILE"
+        fi
+        
+        # Check for required measures using UTF-8 converted file
+        if ! grep -q "Measure_Weather_Current_Parent" "$CURRENT_FILE_UTF8"; then
           echo "ERROR: Missing parent measure in CurrentForecast.inc"
+          echo "Showing first 30 lines of file for debugging:"
+          head -30 "$CURRENT_FILE_UTF8"
           exit 1
         fi
         echo "✓ Parent measure found"
@@ -73,10 +94,12 @@ jobs:
         # Check for essential child measures
         measures=("Measure_Current_Temperature" "Measure_Current_Weather_Code" "Measure_Is_Day")
         for measure in "${measures[@]}"; do
-          if grep -q "$measure" "$CURRENT_FILE"; then
+          if grep -q "$measure" "$CURRENT_FILE_UTF8"; then
             echo "✓ $measure found"
           else
             echo "ERROR: Missing $measure in CurrentForecast.inc"
+            echo "Showing lines containing 'Measure_' for debugging:"
+            grep -n "Measure_" "$CURRENT_FILE_UTF8" | head -20
             exit 1
           fi
         done
@@ -85,9 +108,21 @@ jobs:
       run: |
         echo "Validating 7DaysForecast.inc at path: $DAILY_FILE"
         
+        # Convert UTF-16 to UTF-8 if needed
+        if file "$DAILY_FILE" | grep -q "UTF-16"; then
+          echo "Converting UTF-16 to UTF-8"
+          TEMP_FILE=$(mktemp)
+          iconv -f UTF-16LE -t UTF-8 "$DAILY_FILE" > "$TEMP_FILE"
+          DAILY_FILE_UTF8="$TEMP_FILE"
+        else
+          DAILY_FILE_UTF8="$DAILY_FILE"
+        fi
+        
         # Check for required measures
-        if ! grep -q "Measure_Weather_Daily_Parent" "$DAILY_FILE"; then
+        if ! grep -q "Measure_Weather_Daily_Parent" "$DAILY_FILE_UTF8"; then
           echo "ERROR: Missing parent measure in 7DaysForecast.inc"
+          echo "Showing first 30 lines of file for debugging:"
+          head -30 "$DAILY_FILE_UTF8"
           exit 1
         fi
         echo "✓ Parent measure found"
@@ -95,10 +130,12 @@ jobs:
         # Check for day 1 measures as sample
         measures=("Measure_Day1_Date" "Measure_Day1_Max_Temperature" "Measure_Day1_Min_Temperature" "Measure_Day1_Weather_Code")
         for measure in "${measures[@]}"; do
-          if grep -q "$measure" "$DAILY_FILE"; then
+          if grep -q "$measure" "$DAILY_FILE_UTF8"; then
             echo "✓ $measure found"
           else
             echo "ERROR: Missing $measure in 7DaysForecast.inc"
+            echo "Showing lines containing 'Measure_' for debugging:"
+            grep -n "Measure_" "$DAILY_FILE_UTF8" | head -20
             exit 1
           fi
         done
@@ -107,9 +144,21 @@ jobs:
       run: |
         echo "Validating 7HoursForecast.inc at path: $HOURLY_FILE"
         
+        # Convert UTF-16 to UTF-8 if needed
+        if file "$HOURLY_FILE" | grep -q "UTF-16"; then
+          echo "Converting UTF-16 to UTF-8"
+          TEMP_FILE=$(mktemp)
+          iconv -f UTF-16LE -t UTF-8 "$HOURLY_FILE" > "$TEMP_FILE"
+          HOURLY_FILE_UTF8="$TEMP_FILE"
+        else
+          HOURLY_FILE_UTF8="$HOURLY_FILE"
+        fi
+        
         # Check for required measures
-        if ! grep -q "Measure_Weather_Hourly_Parent" "$HOURLY_FILE"; then
+        if ! grep -q "Measure_Weather_Hourly_Parent" "$HOURLY_FILE_UTF8"; then
           echo "ERROR: Missing parent measure in 7HoursForecast.inc"
+          echo "Showing first 30 lines of file for debugging:"
+          head -30 "$HOURLY_FILE_UTF8"
           exit 1
         fi
         echo "✓ Parent measure found"
@@ -117,10 +166,12 @@ jobs:
         # Check for hour 1 measures as sample
         measures=("Measure_Hour1_Time" "Measure_Hour1_Temperature" "Measure_Hour1_Weather_Code" "Measure_Hour1_Is_Day")
         for measure in "${measures[@]}"; do
-          if grep -q "$measure" "$HOURLY_FILE"; then
+          if grep -q "$measure" "$HOURLY_FILE_UTF8"; then
             echo "✓ $measure found"
           else
             echo "ERROR: Missing $measure in 7HoursForecast.inc"
+            echo "Showing lines containing 'Measure_' for debugging:"
+            grep -n "Measure_" "$HOURLY_FILE_UTF8" | head -20
             exit 1
           fi
         done
@@ -178,6 +229,12 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
       
+    - name: Set up environment
+      run: |
+        # Set UTF-8 locale to handle different encodings
+        echo "LANG=C.UTF-8" >> $GITHUB_ENV
+        echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
+        
     - name: Find Weather Measure Files
       id: find_files_lint
       run: |
@@ -196,40 +253,90 @@ jobs:
       run: |
         echo "Checking for common syntax issues in .inc files"
         
-        # Check for unmatched brackets
-        echo "Checking for unmatched brackets..."
-        INC_FILES=$(find . -name "*.inc")
+        # Process each .inc file, converting UTF-16 to UTF-8 if needed
+        INC_FILES=$(find "$WEATHER_MEASURES_DIR" -name "*.inc")
         for file in $INC_FILES; do
           echo "Checking $file"
           
+          # Convert UTF-16 to UTF-8 if needed
+          if file "$file" | grep -q "UTF-16"; then
+            echo "  Converting UTF-16 to UTF-8 for processing"
+            TEMP_FILE=$(mktemp)
+            iconv -f UTF-16LE -t UTF-8 "$file" > "$TEMP_FILE"
+            PROCESSED_FILE="$TEMP_FILE"
+          else
+            PROCESSED_FILE="$file"
+          fi
+          
           # Count opening and closing brackets
-          open_brackets=$(grep -o "\[" "$file" | wc -l)
-          close_brackets=$(grep -o "\]" "$file" | wc -l)
+          open_brackets=$(grep -o "\[" "$PROCESSED_FILE" | wc -l)
+          close_brackets=$(grep -o "\]" "$PROCESSED_FILE" | wc -l)
           
           if [ "$open_brackets" -ne "$close_brackets" ]; then
             echo "WARNING: Unmatched brackets in $file - $open_brackets [ vs $close_brackets ]"
           else
             echo "✓ Balanced brackets in $file"
           fi
+          
+          # Clean up temp file if created
+          if [ "$PROCESSED_FILE" != "$file" ]; then
+            rm "$PROCESSED_FILE"
+          fi
         done
         
         # Check for common issues with TimeStampFormat based on memory
         echo "Checking for TimeStampFormat issues..."
-        if grep -r "TimeStampFormat=%Y-%m-%d" "$WEATHER_MEASURES_DIR/" --include="*.inc"; then
-          echo "WARNING: Found %Y-%m-%d TimeStampFormat which may cause issues with day name extraction"
-          echo "See documentation: Rainmeter TimeStampFormat for Abbreviated Day Names"
-        else
-          echo "✓ No problematic TimeStampFormat patterns found"
-        fi
+        # We need to check all files, converting as needed
+        for file in $INC_FILES; do
+          # Convert UTF-16 to UTF-8 if needed
+          if file "$file" | grep -q "UTF-16"; then
+            TEMP_FILE=$(mktemp)
+            iconv -f UTF-16LE -t UTF-8 "$file" > "$TEMP_FILE"
+            PROCESSED_FILE="$TEMP_FILE"
+          else
+            PROCESSED_FILE="$file"
+          fi
+          
+          if grep -q "TimeStampFormat=%Y-%m-%d" "$PROCESSED_FILE"; then
+            echo "WARNING: Found %Y-%m-%d TimeStampFormat which may cause issues with day name extraction"
+            echo "See documentation: Rainmeter TimeStampFormat for Abbreviated Day Names"
+          fi
+          
+          # Clean up temp file if created
+          if [ "$PROCESSED_FILE" != "$file" ]; then
+            rm "$PROCESSED_FILE"
+          fi
+        done
         
         # Check for WMO code 3 mapping issues based on memory
         echo "Checking for WMO code 3 mapping..."
-        if grep -r "PartlyCloudyNight.png.*3\|3.*PartlyCloudyNight.png" "$WEATHER_MEASURES_DIR/" --include="*.inc"; then
-          echo "ERROR: Incorrect WMO code 3 mapping found - should map to Overcast.png"
-          echo "See memory: Correct WMO weather code 3 mapping to Overcast.png"
+        ISSUE_FOUND=false
+        for file in $INC_FILES; do
+          # Convert UTF-16 to UTF-8 if needed
+          if file "$file" | grep -q "UTF-16"; then
+            TEMP_FILE=$(mktemp)
+            iconv -f UTF-16LE -t UTF-8 "$file" > "$TEMP_FILE"
+            PROCESSED_FILE="$TEMP_FILE"
+          else
+            PROCESSED_FILE="$file"
+          fi
+          
+          if grep -q "PartlyCloudyNight.png.*3\|3.*PartlyCloudyNight.png" "$PROCESSED_FILE"; then
+            echo "ERROR: Incorrect WMO code 3 mapping found in $file - should map to Overcast.png"
+            echo "See memory: Correct WMO weather code 3 mapping to Overcast.png"
+            ISSUE_FOUND=true
+          fi
+          
+          # Clean up temp file if created
+          if [ "$PROCESSED_FILE" != "$file" ]; then
+            rm "$PROCESSED_FILE"
+          fi
+        done
+        
+        if [ "$ISSUE_FOUND" = true ]; then
           exit 1
         else
-          echo "✓ WMO code 3 correctly not mapped to PartlyCloudyNight.png"
+          echo "✓ No WMO code 3 mapping issues found"
         fi
 
   release:
