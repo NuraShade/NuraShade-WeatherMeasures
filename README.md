@@ -172,6 +172,11 @@ Wind_Speed_Unit=kmh
       <td><code>Measure_Day{N}_Sunset</code></td>
       <td>Sunset time with formatted HH:MM variant</td>
     </tr>
+    <tr>
+      <td>12-Hour Sunset Time</td>
+      <td><code>Measure_Day{N}_Sunset_12Hour</code></td>
+      <td>Sunset time in 12-hour format with AM/PM (e.g., 5:00 PM)</td>
+    </tr>
   </tbody>
 </table>
 

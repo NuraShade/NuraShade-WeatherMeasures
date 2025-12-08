@@ -687,3 +687,56 @@ TimeStamp=[Measure_Day7_Sunset]
 TimeStampFormat=%Y-%m-%dT%H:%M
 Format=%H:%M
 DynamicVariables=1
+
+;============================================================
+; 12-Hour Format Sunset Times (e.g., 5:00 PM)
+;============================================================
+
+[Measure_Day1_Sunset_12Hour]
+Measure=Time
+TimeStamp=[Measure_Day1_Sunset]
+TimeStampFormat=%Y-%m-%dT%H:%M
+Format=%#I:%M %p
+DynamicVariables=1
+
+[Measure_Day2_Sunset_12Hour]
+Measure=Time
+TimeStamp=[Measure_Day2_Sunset]
+TimeStampFormat=%Y-%m-%dT%H:%M
+Format=%#I:%M %p
+DynamicVariables=1
+
+[Measure_Day3_Sunset_12Hour]
+Measure=Time
+TimeStamp=[Measure_Day3_Sunset]
+TimeStampFormat=%Y-%m-%dT%H:%M
+Format=%#I:%M %p
+DynamicVariables=1
+
+[Measure_Day4_Sunset_12Hour]
+Measure=Time
+TimeStamp=[Measure_Day4_Sunset]
+TimeStampFormat=%Y-%m-%dT%H:%M
+Format=%#I:%M %p
+DynamicVariables=1
+
+[Measure_Day5_Sunset_12Hour]
+Measure=Time
+TimeStamp=[Measure_Day5_Sunset]
+TimeStampFormat=%Y-%m-%dT%H:%M
+Format=%#I:%M %p
+DynamicVariables=1
+
+[Measure_Day6_Sunset_12Hour]
+Measure=Time
+TimeStamp=[Measure_Day6_Sunset]
+TimeStampFormat=%Y-%m-%dT%H:%M
+Format=%#I:%M %p
+DynamicVariables=1
+
+[Measure_Day7_Sunset_12Hour]
+Measure=Time
+TimeStamp=[Measure_Day7_Sunset]
+TimeStampFormat=%Y-%m-%dT%H:%M
+Format=%#I:%M %p
+DynamicVariables=1
