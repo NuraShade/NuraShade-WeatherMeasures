@@ -1,0 +1,76 @@
+name: Release Publisher
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  publish-release:
+    name: Publish Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      
+    - name: Extract Package Info
+      id: package_info
+      run: |
+        # Extract name and version from package.json
+        NAME=$(jq -r '.name' package.json)
+        VERSION=$(jq -r '.version' package.json)
+        
+        echo "NAME=$NAME" >> $GITHUB_ENV
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        
+        echo "Package name: $NAME"
+        echo "Package version: $VERSION"
+        
+        # Create release name in the format {name}_v{version}
+        RELEASE_NAME="${NAME}_v${VERSION}"
+        echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
+        echo "Release name: $RELEASE_NAME"
+      
+    - name: Prepare Release Assets
+      run: |
+        echo "Preparing release package"
+        mkdir -p release/${{ env.NAME }}/Includes/WeatherMeasures
+        
+        # Copy all weather measure files
+        cp Includes/WeatherMeasures/*.inc release/${{ env.NAME }}/Includes/WeatherMeasures/
+        cp README.md release/${{ env.NAME }}/ || echo "README.md not found"
+        cp LICENSE.md release/${{ env.NAME }}/ || echo "LICENSE.md not found"
+        cp package.json release/${{ env.NAME }}/ || echo "package.json not found"
+        
+        # Create zip file
+        cd release
+        zip -r ${{ env.RELEASE_NAME }}.zip ${{ env.NAME }}
+        
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ env.VERSION }}
+        release_name: ${{ env.RELEASE_NAME }}
+        body: |
+          ## Release ${{ env.RELEASE_NAME }}
+          
+          Automated release of ${{ env.NAME }} version ${{ env.VERSION }}.
+          
+          ### Files included:
+          - Weather measure configuration files
+          - Documentation
+          - Package metadata
+        draft: false
+        prerelease: false
+        
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release/${{ env.RELEASE_NAME }}.zip
+        asset_name: ${{ env.RELEASE_NAME }}.zip
+        asset_content_type: application/zip
