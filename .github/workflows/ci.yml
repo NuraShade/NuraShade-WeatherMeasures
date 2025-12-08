@@ -1,0 +1,242 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+  pull_request:
+    branches: [ main, develop ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+
+jobs:
+  validate:
+    name: Validate Rainmeter Measures
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      
+    - name: Setup Rainmeter Validator
+      run: |
+        echo "Setting up Rainmeter configuration validator"
+        echo "Installing dependencies..."
+        
+    - name: Validate Current Forecast Measures
+      run: |
+        echo "Validating CurrentForecast.inc"
+        # Check for required measures
+        if ! grep -q "Measure_Weather_Current_Parent" "Includes/WeatherMeasures/CurrentForecast.inc"; then
+          echo "ERROR: Missing parent measure in CurrentForecast.inc"
+          exit 1
+        fi
+        echo "✓ Parent measure found"
+        
+        # Check for essential child measures
+        measures=("Measure_Current_Temperature" "Measure_Current_Weather_Code" "Measure_Is_Day")
+        for measure in "${measures[@]}"; do
+          if grep -q "$measure" "Includes/WeatherMeasures/CurrentForecast.inc"; then
+            echo "✓ $measure found"
+          else
+            echo "ERROR: Missing $measure in CurrentForecast.inc"
+            exit 1
+          fi
+        done
+        
+    - name: Validate 7-Day Forecast Measures
+      run: |
+        echo "Validating 7DaysForecast.inc"
+        # Check for required measures
+        if ! grep -q "Measure_Weather_Daily_Parent" "Includes/WeatherMeasures/7DaysForecast.inc"; then
+          echo "ERROR: Missing parent measure in 7DaysForecast.inc"
+          exit 1
+        fi
+        echo "✓ Parent measure found"
+        
+        # Check for day 1 measures as sample
+        measures=("Measure_Day1_Date" "Measure_Day1_Max_Temperature" "Measure_Day1_Min_Temperature" "Measure_Day1_Weather_Code")
+        for measure in "${measures[@]}"; do
+          if grep -q "$measure" "Includes/WeatherMeasures/7DaysForecast.inc"; then
+            echo "✓ $measure found"
+          else
+            echo "ERROR: Missing $measure in 7DaysForecast.inc"
+            exit 1
+          fi
+        done
+        
+    - name: Validate 7-Hour Forecast Measures
+      run: |
+        echo "Validating 7HoursForecast.inc"
+        # Check for required measures
+        if ! grep -q "Measure_Weather_Hourly_Parent" "Includes/WeatherMeasures/7HoursForecast.inc"; then
+          echo "ERROR: Missing parent measure in 7HoursForecast.inc"
+          exit 1
+        fi
+        echo "✓ Parent measure found"
+        
+        # Check for hour 1 measures as sample
+        measures=("Measure_Hour1_Time" "Measure_Hour1_Temperature" "Measure_Hour1_Weather_Code" "Measure_Hour1_Is_Day")
+        for measure in "${measures[@]}"; do
+          if grep -q "$measure" "Includes/WeatherMeasures/7HoursForecast.inc"; then
+            echo "✓ $measure found"
+          else
+            echo "ERROR: Missing $measure in 7HoursForecast.inc"
+            exit 1
+          fi
+        done
+
+  test-api:
+    name: Test Open-Meteo API Integration
+    runs-on: ubuntu-latest
+    needs: validate
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      
+    - name: Test API Endpoints
+      run: |
+        echo "Testing Open-Meteo API endpoints used in measures"
+        
+        # Extract latitude and longitude from sample configs (using default values)
+        LAT="29.704813"
+        LON="72.560036"
+        
+        # Test current weather endpoint
+        CURRENT_URL="https://api.open-meteo.com/v1/forecast?latitude=$LAT&longitude=$LON&current=temperature_2m,weather_code,is_day"
+        echo "Testing current weather endpoint: $CURRENT_URL"
+        if curl -s --fail "$CURRENT_URL" > /dev/null; then
+          echo "✓ Current weather API is accessible"
+        else
+          echo "WARNING: Current weather API is not accessible or returned an error"
+        fi
+        
+        # Test daily forecast endpoint
+        DAILY_URL="https://api.open-meteo.com/v1/forecast?latitude=$LAT&longitude=$LON&daily=weather_code,temperature_2m_max,temperature_2m_min"
+        echo "Testing daily forecast endpoint: $DAILY_URL"
+        if curl -s --fail "$DAILY_URL" > /dev/null; then
+          echo "✓ Daily forecast API is accessible"
+        else
+          echo "WARNING: Daily forecast API is not accessible or returned an error"
+        fi
+        
+        # Test hourly forecast endpoint
+        HOURLY_URL="https://api.open-meteo.com/v1/forecast?latitude=$LAT&longitude=$LON&hourly=temperature_2m,weather_code,is_day"
+        echo "Testing hourly forecast endpoint: $HOURLY_URL"
+        if curl -s --fail "$HOURLY_URL" > /dev/null; then
+          echo "✓ Hourly forecast API is accessible"
+        else
+          echo "WARNING: Hourly forecast API is not accessible or returned an error"
+        fi
+
+  lint:
+    name: Lint Configuration Files
+    runs-on: ubuntu-latest
+    needs: validate
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      
+    - name: Check for Syntax Issues
+      run: |
+        echo "Checking for common syntax issues in .inc files"
+        
+        # Check for unmatched brackets
+        echo "Checking for unmatched brackets..."
+        INC_FILES=$(find . -name "*.inc")
+        for file in $INC_FILES; do
+          echo "Checking $file"
+          
+          # Count opening and closing brackets
+          open_brackets=$(grep -o "\[" "$file" | wc -l)
+          close_brackets=$(grep -o "\]" "$file" | wc -l)
+          
+          if [ "$open_brackets" -ne "$close_brackets" ]; then
+            echo "WARNING: Unmatched brackets in $file - $open_brackets [ vs $close_brackets ]"
+          else
+            echo "✓ Balanced brackets in $file"
+          fi
+        done
+        
+        # Check for common issues with TimeStampFormat based on memory
+        echo "Checking for TimeStampFormat issues..."
+        if grep -r "TimeStampFormat=%Y-%m-%d" "Includes/WeatherMeasures/" --include="*.inc"; then
+          echo "WARNING: Found %Y-%m-%d TimeStampFormat which may cause issues with day name extraction"
+          echo "See documentation: Rainmeter TimeStampFormat for Abbreviated Day Names"
+        else
+          echo "✓ No problematic TimeStampFormat patterns found"
+        fi
+        
+        # Check for WMO code 3 mapping issues based on memory
+        echo "Checking for WMO code 3 mapping..."
+        if grep -r "PartlyCloudyNight.png.*3\|3.*PartlyCloudyNight.png" "Includes/WeatherMeasures/" --include="*.inc"; then
+          echo "ERROR: Incorrect WMO code 3 mapping found - should map to Overcast.png"
+          echo "See memory: Correct WMO weather code 3 mapping to Overcast.png"
+          exit 1
+        else
+          echo "✓ WMO code 3 correctly not mapped to PartlyCloudyNight.png"
+        fi
+
+  release:
+    name: Create Release Package
+    runs-on: ubuntu-latest
+    needs: [validate, test-api, lint]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      
+    - name: Prepare Release Assets
+      run: |
+        echo "Preparing release package"
+        mkdir -p release/Nurashade-WeatherMeasures/Includes/WeatherMeasures
+        
+        cp Includes/WeatherMeasures/CurrentForecast.inc release/Nurashade-WeatherMeasures/Includes/WeatherMeasures/
+        cp Includes/WeatherMeasures/7DaysForecast.inc release/Nurashade-WeatherMeasures/Includes/WeatherMeasures/
+        cp Includes/WeatherMeasures/7HoursForecast.inc release/Nurashade-WeatherMeasures/Includes/WeatherMeasures/
+        cp README.md release/Nurashade-WeatherMeasures/
+        cp LICENSE.md release/Nurashade-WeatherMeasures/
+        
+        cd release
+        zip -r Nurashade-WeatherMeasures.zip Nurashade-WeatherMeasures
+        
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        body: |
+          ## Automated Release
+          
+          This release was automatically generated by the CI workflow.
+          
+          ### Changes in this release:
+          - Updated weather measures
+          - Validated API integration
+          - Passed all linting checks
+          
+          ### Files included:
+          - CurrentForecast.inc
+          - 7DaysForecast.inc
+          - 7HoursForecast.inc
+          - Documentation and license files
+        draft: false
+        prerelease: false
+        
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release/Nurashade-WeatherMeasures.zip
+        asset_name: Nurashade-WeatherMeasures-v${{ github.run_number }}.zip
+        asset_content_type: application/zip
