@@ -11,7 +11,7 @@
 
 ## 🌤️ Overview
 
-NuraShade Weather Measures is a collection of Rainmeter configuration files that provide comprehensive weather forecasting capabilities using the Open-Meteo API. This package includes measures for current weather conditions, 7-day forecasts, and 7-hour hourly forecasts.
+NuraShade Weather Measures is a collection of Rainmeter configuration files that provide comprehensive weather forecasting capabilities using the Open-Meteo API. This package includes measures for current weather conditions, 7-day forecasts, and 7-hour hourly forecasts. Most numerical measures include both precise and rounded variants for flexible display options.
 
 ## 📁 File Structure
 
@@ -25,15 +25,15 @@ NuraShade Weather Measures is a collection of Rainmeter configuration files that
   <tbody>
     <tr>
       <td><code>CurrentForecast.inc</code></td>
-      <td>Measures for current weather conditions including temperature, humidity, wind speed, pressure, and visibility</td>
+      <td>Measures for current weather conditions including temperature, feels like, weather code, weather icon, wind speed, humidity, pressure, visibility, and dew point</td>
     </tr>
     <tr>
       <td><code>7DaysForecast.inc</code></td>
-      <td>Measures for 7-day weather forecast including min/max temperatures, weather conditions, sunrise/sunset times</td>
+      <td>Measures for 7-day weather forecast including dates, day names, min/max temperatures, weather conditions, weather icons, sunrise/sunset times in multiple formats</td>
     </tr>
     <tr>
       <td><code>7HoursForecast.inc</code></td>
-      <td>Measures for 7-hour hourly weather forecast including temperatures and weather conditions</td>
+      <td>Measures for 7-hour hourly weather forecast including times, temperatures, weather codes, weather conditions, weather icons, and day/night indicators</td>
     </tr>
   </tbody>
 </table>
@@ -66,17 +66,32 @@ Wind_Speed_Unit=kmh
     <tr>
       <td>Temperature</td>
       <td><code>Measure_Current_Temperature</code></td>
-      <td>Current air temperature with rounded variant</td>
+      <td>Current air temperature</td>
+    </tr>
+    <tr>
+      <td>Temperature Rounded</td>
+      <td><code>Measure_Current_Temperature_Rounded</code></td>
+      <td>Current air temperature rounded up to nearest integer</td>
     </tr>
     <tr>
       <td>Feels Like</td>
       <td><code>Measure_Feels_Like_Temperature</code></td>
-      <td>Apparent temperature with rounded variant</td>
+      <td>Apparent temperature</td>
+    </tr>
+    <tr>
+      <td>Feels Like Rounded</td>
+      <td><code>Measure_Feels_Like_Temperature_Rounded</code></td>
+      <td>Apparent temperature rounded up to nearest integer</td>
     </tr>
     <tr>
       <td>Weather Condition</td>
       <td><code>Measure_Current_Weather_Code</code></td>
-      <td>Current weather code with translated description</td>
+      <td>Current weather code</td>
+    </tr>
+    <tr>
+      <td>Weather Condition Translated</td>
+      <td><code>Measure_Weather_Condition_Translated</code></td>
+      <td>Translated weather condition description</td>
     </tr>
     <tr>
       <td>Weather Icon</td>
@@ -86,27 +101,57 @@ Wind_Speed_Unit=kmh
     <tr>
       <td>Wind Speed</td>
       <td><code>Measure_Wind_Speed</code></td>
-      <td>Current wind speed with rounded variant</td>
+      <td>Current wind speed</td>
+    </tr>
+    <tr>
+      <td>Wind Speed Rounded</td>
+      <td><code>Measure_Wind_Speed_Rounded</code></td>
+      <td>Current wind speed rounded to nearest integer</td>
     </tr>
     <tr>
       <td>Humidity</td>
       <td><code>Measure_Humidity</code></td>
-      <td>Relative humidity percentage with rounded variant</td>
+      <td>Relative humidity percentage</td>
+    </tr>
+    <tr>
+      <td>Humidity Rounded</td>
+      <td><code>Measure_Humidity_Rounded</code></td>
+      <td>Relative humidity percentage rounded to nearest integer</td>
     </tr>
     <tr>
       <td>Pressure</td>
       <td><code>Measure_Pressure</code></td>
-      <td>Surface pressure with rounded variant</td>
+      <td>Surface pressure</td>
+    </tr>
+    <tr>
+      <td>Pressure Rounded</td>
+      <td><code>Measure_Pressure_Rounded</code></td>
+      <td>Surface pressure rounded to nearest integer</td>
     </tr>
     <tr>
       <td>Visibility</td>
       <td><code>Measure_Current_Visibility</code></td>
-      <td>Current visibility distance with rounded variant</td>
+      <td>Current visibility distance</td>
+    </tr>
+    <tr>
+      <td>Visibility Rounded</td>
+      <td><code>Measure_Current_Visibility_Rounded</code></td>
+      <td>Current visibility distance rounded to nearest integer</td>
     </tr>
     <tr>
       <td>Dew Point</td>
       <td><code>Measure_Current_Dew_Point</code></td>
-      <td>Dew point temperature with rounded variant</td>
+      <td>Dew point temperature</td>
+    </tr>
+    <tr>
+      <td>Dew Point Rounded</td>
+      <td><code>Measure_Current_Dew_Point_Rounded</code></td>
+      <td>Dew point temperature rounded to nearest integer</td>
+    </tr>
+    <tr>
+      <td>Is Day</td>
+      <td><code>Measure_Is_Day</code></td>
+      <td>Day/night indicator (1=day, 0=night)</td>
     </tr>
   </tbody>
 </table>
@@ -140,12 +185,22 @@ Wind_Speed_Unit=kmh
     <tr>
       <td>Max Temperature</td>
       <td><code>Measure_Day{N}_Max_Temperature</code></td>
-      <td>Maximum temperature with rounded variant</td>
+      <td>Maximum temperature</td>
+    </tr>
+    <tr>
+      <td>Max Temperature Rounded</td>
+      <td><code>Measure_Day{N}_Max_Temperature_Rounded</code></td>
+      <td>Maximum temperature rounded to nearest integer</td>
     </tr>
     <tr>
       <td>Min Temperature</td>
       <td><code>Measure_Day{N}_Min_Temperature</code></td>
-      <td>Minimum temperature with rounded variant</td>
+      <td>Minimum temperature</td>
+    </tr>
+    <tr>
+      <td>Min Temperature Rounded</td>
+      <td><code>Measure_Day{N}_Min_Temperature_Rounded</code></td>
+      <td>Minimum temperature rounded to nearest integer</td>
     </tr>
     <tr>
       <td>Weather Code</td>
@@ -165,12 +220,22 @@ Wind_Speed_Unit=kmh
     <tr>
       <td>Sunrise Time</td>
       <td><code>Measure_Day{N}_Sunrise</code></td>
-      <td>Sunrise time with formatted HH:MM variant</td>
+      <td>Sunrise time</td>
+    </tr>
+    <tr>
+      <td>Formatted Sunrise Time</td>
+      <td><code>Measure_Day{N}_Sunrise_Formatted</code></td>
+      <td>Sunrise time in HH:MM format</td>
     </tr>
     <tr>
       <td>Sunset Time</td>
       <td><code>Measure_Day{N}_Sunset</code></td>
-      <td>Sunset time with formatted HH:MM variant</td>
+      <td>Sunset time</td>
+    </tr>
+    <tr>
+      <td>Formatted Sunset Time</td>
+      <td><code>Measure_Day{N}_Sunset_Formatted</code></td>
+      <td>Sunset time in HH:MM format</td>
     </tr>
     <tr>
       <td>12-Hour Sunset Time</td>
@@ -205,6 +270,11 @@ Wind_Speed_Unit=kmh
       <td>Abbreviated Time</td>
       <td><code>Measure_Hour{N}_Time_Abbreviated</code></td>
       <td>Abbreviated time format</td>
+    </tr>
+    <tr>
+      <td>Abbreviated Formatted Time</td>
+      <td><code>Measure_Hour{N}_Time_Abbreviated_Formatted</code></td>
+      <td>Formatted abbreviated time (hour only)</td>
     </tr>
     <tr>
       <td>Temperature</td>
