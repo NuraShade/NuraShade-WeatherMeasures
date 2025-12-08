@@ -1,0 +1,85 @@
+name: Debug File Structure
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+  pull_request:
+    branches: [ main, develop ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+
+jobs:
+  debug:
+    name: Debug File Structure
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      
+    - name: List Directory Structure
+      run: |
+        echo "Current working directory: $(pwd)"
+        echo "Directory listing:"
+        ls -la
+        echo "Recursive directory listing:"
+        find . -type f -not -path "./.git/*" | head -50
+        
+    - name: Check Specific Paths
+      run: |
+        echo "Checking for Includes directory:"
+        if [ -d "Includes" ]; then
+          echo "✓ Includes directory found"
+          ls -la Includes/
+        else
+          echo "✗ Includes directory NOT found"
+        fi
+        
+        echo "Checking for Includes/WeatherMeasures directory:"
+        if [ -d "Includes/WeatherMeasures" ]; then
+          echo "✓ Includes/WeatherMeasures directory found"
+          ls -la Includes/WeatherMeasures/
+        else
+          echo "✗ Includes/WeatherMeasures directory NOT found"
+        fi
+        
+        echo "Checking for full path structure:"
+        if [ -d "Nurashade-WeatherMeasures/Includes/WeatherMeasures" ]; then
+          echo "✓ Nurashade-WeatherMeasures/Includes/WeatherMeasures directory found"
+          ls -la Nurashade-WeatherMeasures/Includes/WeatherMeasures/
+        else
+          echo "✗ Nurashade-WeatherMeasures/Includes/WeatherMeasures directory NOT found"
+        fi
+        
+    - name: Check File Contents
+      run: |
+        echo "Looking for CurrentForecast.inc in various locations:"
+        
+        # Check root level
+        if [ -f "CurrentForecast.inc" ]; then
+          echo "✓ Found CurrentForecast.inc at root level"
+        else
+          echo "✗ CurrentForecast.inc NOT found at root level"
+        fi
+        
+        # Check Includes/WeatherMeasures/
+        if [ -f "Includes/WeatherMeasures/CurrentForecast.inc" ]; then
+          echo "✓ Found CurrentForecast.inc at Includes/WeatherMeasures/"
+          echo "First 10 lines:"
+          head -10 "Includes/WeatherMeasures/CurrentForecast.inc"
+        else
+          echo "✗ CurrentForecast.inc NOT found at Includes/WeatherMeasures/"
+        fi
+        
+        # Check Nurashade-WeatherMeasures/Includes/WeatherMeasures/
+        if [ -f "Nurashade-WeatherMeasures/Includes/WeatherMeasures/CurrentForecast.inc" ]; then
+          echo "✓ Found CurrentForecast.inc at Nurashade-WeatherMeasures/Includes/WeatherMeasures/"
+          echo "First 10 lines:"
+          head -10 "Nurashade-WeatherMeasures/Includes/WeatherMeasures/CurrentForecast.inc"
+        else
+          echo "✗ CurrentForecast.inc NOT found at Nurashade-WeatherMeasures/Includes/WeatherMeasures/"
+        fi

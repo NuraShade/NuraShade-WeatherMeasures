@@ -21,11 +21,50 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
       
+    - name: Find Weather Measure Files
+      id: find_files
+      run: |
+        echo "Finding weather measure files..."
+        echo "Current directory: $(pwd)"
+        echo "All files:"
+        find . -type f -not -path "./.git/*" | sort
+        
+        # Find the actual paths to the files
+        CURRENT_FILE=$(find . -name "CurrentForecast.inc" -type f | head -1)
+        DAILY_FILE=$(find . -name "7DaysForecast.inc" -type f | head -1)
+        HOURLY_FILE=$(find . -name "7HoursForecast.inc" -type f | head -1)
+        
+        echo "CURRENT_FILE=$CURRENT_FILE" >> $GITHUB_ENV
+        echo "DAILY_FILE=$DAILY_FILE" >> $GITHUB_ENV
+        echo "HOURLY_FILE=$HOURLY_FILE" >> $GITHUB_ENV
+        
+        if [ -n "$CURRENT_FILE" ]; then
+          echo "✓ Found CurrentForecast.inc at $CURRENT_FILE"
+        else
+          echo "✗ Could not find CurrentForecast.inc"
+          exit 1
+        fi
+        
+        if [ -n "$DAILY_FILE" ]; then
+          echo "✓ Found 7DaysForecast.inc at $DAILY_FILE"
+        else
+          echo "✗ Could not find 7DaysForecast.inc"
+          exit 1
+        fi
+        
+        if [ -n "$HOURLY_FILE" ]; then
+          echo "✓ Found 7HoursForecast.inc at $HOURLY_FILE"
+        else
+          echo "✗ Could not find 7HoursForecast.inc"
+          exit 1
+        fi
+      
     - name: Validate Current Forecast Measures
       run: |
-        echo "Validating CurrentForecast.inc"
+        echo "Validating CurrentForecast.inc at path: $CURRENT_FILE"
+        
         # Check for required measures
-        if ! grep -q "Measure_Weather_Current_Parent" "Includes/WeatherMeasures/CurrentForecast.inc"; then
+        if ! grep -q "Measure_Weather_Current_Parent" "$CURRENT_FILE"; then
           echo "ERROR: Missing parent measure in CurrentForecast.inc"
           exit 1
         fi
@@ -34,7 +73,7 @@ jobs:
         # Check for essential child measures
         measures=("Measure_Current_Temperature" "Measure_Current_Weather_Code" "Measure_Is_Day")
         for measure in "${measures[@]}"; do
-          if grep -q "$measure" "Includes/WeatherMeasures/CurrentForecast.inc"; then
+          if grep -q "$measure" "$CURRENT_FILE"; then
             echo "✓ $measure found"
           else
             echo "ERROR: Missing $measure in CurrentForecast.inc"
@@ -44,9 +83,10 @@ jobs:
         
     - name: Validate 7-Day Forecast Measures
       run: |
-        echo "Validating 7DaysForecast.inc"
+        echo "Validating 7DaysForecast.inc at path: $DAILY_FILE"
+        
         # Check for required measures
-        if ! grep -q "Measure_Weather_Daily_Parent" "Includes/WeatherMeasures/7DaysForecast.inc"; then
+        if ! grep -q "Measure_Weather_Daily_Parent" "$DAILY_FILE"; then
           echo "ERROR: Missing parent measure in 7DaysForecast.inc"
           exit 1
         fi
@@ -55,7 +95,7 @@ jobs:
         # Check for day 1 measures as sample
         measures=("Measure_Day1_Date" "Measure_Day1_Max_Temperature" "Measure_Day1_Min_Temperature" "Measure_Day1_Weather_Code")
         for measure in "${measures[@]}"; do
-          if grep -q "$measure" "Includes/WeatherMeasures/7DaysForecast.inc"; then
+          if grep -q "$measure" "$DAILY_FILE"; then
             echo "✓ $measure found"
           else
             echo "ERROR: Missing $measure in 7DaysForecast.inc"
@@ -65,9 +105,10 @@ jobs:
         
     - name: Validate 7-Hour Forecast Measures
       run: |
-        echo "Validating 7HoursForecast.inc"
+        echo "Validating 7HoursForecast.inc at path: $HOURLY_FILE"
+        
         # Check for required measures
-        if ! grep -q "Measure_Weather_Hourly_Parent" "Includes/WeatherMeasures/7HoursForecast.inc"; then
+        if ! grep -q "Measure_Weather_Hourly_Parent" "$HOURLY_FILE"; then
           echo "ERROR: Missing parent measure in 7HoursForecast.inc"
           exit 1
         fi
@@ -76,7 +117,7 @@ jobs:
         # Check for hour 1 measures as sample
         measures=("Measure_Hour1_Time" "Measure_Hour1_Temperature" "Measure_Hour1_Weather_Code" "Measure_Hour1_Is_Day")
         for measure in "${measures[@]}"; do
-          if grep -q "$measure" "Includes/WeatherMeasures/7HoursForecast.inc"; then
+          if grep -q "$measure" "$HOURLY_FILE"; then
             echo "✓ $measure found"
           else
             echo "ERROR: Missing $measure in 7HoursForecast.inc"
@@ -137,6 +178,20 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
       
+    - name: Find Weather Measure Files
+      id: find_files_lint
+      run: |
+        # Find the actual paths to the files
+        WEATHER_MEASURES_DIR=$(find . -name "WeatherMeasures" -type d | head -1)
+        echo "WEATHER_MEASURES_DIR=$WEATHER_MEASURES_DIR" >> $GITHUB_ENV
+        
+        if [ -n "$WEATHER_MEASURES_DIR" ]; then
+          echo "✓ Found WeatherMeasures directory at $WEATHER_MEASURES_DIR"
+        else
+          echo "✗ Could not find WeatherMeasures directory"
+          exit 1
+        fi
+      
     - name: Check for Syntax Issues
       run: |
         echo "Checking for common syntax issues in .inc files"
@@ -160,7 +215,7 @@ jobs:
         
         # Check for common issues with TimeStampFormat based on memory
         echo "Checking for TimeStampFormat issues..."
-        if grep -r "TimeStampFormat=%Y-%m-%d" "Includes/WeatherMeasures/" --include="*.inc"; then
+        if grep -r "TimeStampFormat=%Y-%m-%d" "$WEATHER_MEASURES_DIR/" --include="*.inc"; then
           echo "WARNING: Found %Y-%m-%d TimeStampFormat which may cause issues with day name extraction"
           echo "See documentation: Rainmeter TimeStampFormat for Abbreviated Day Names"
         else
@@ -169,7 +224,7 @@ jobs:
         
         # Check for WMO code 3 mapping issues based on memory
         echo "Checking for WMO code 3 mapping..."
-        if grep -r "PartlyCloudyNight.png.*3\|3.*PartlyCloudyNight.png" "Includes/WeatherMeasures/" --include="*.inc"; then
+        if grep -r "PartlyCloudyNight.png.*3\|3.*PartlyCloudyNight.png" "$WEATHER_MEASURES_DIR/" --include="*.inc"; then
           echo "ERROR: Incorrect WMO code 3 mapping found - should map to Overcast.png"
           echo "See memory: Correct WMO weather code 3 mapping to Overcast.png"
           exit 1
@@ -187,16 +242,29 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
       
+    - name: Find Weather Measure Files
+      id: find_files_release
+      run: |
+        # Find the actual paths to the files
+        WEATHER_MEASURES_DIR=$(find . -name "WeatherMeasures" -type d | head -1)
+        echo "WEATHER_MEASURES_DIR=$WEATHER_MEASURES_DIR" >> $GITHUB_ENV
+        
+        if [ -n "$WEATHER_MEASURES_DIR" ]; then
+          echo "✓ Found WeatherMeasures directory at $WEATHER_MEASURES_DIR"
+        else
+          echo "✗ Could not find WeatherMeasures directory"
+          exit 1
+        fi
+      
     - name: Prepare Release Assets
       run: |
         echo "Preparing release package"
         mkdir -p release/Includes/WeatherMeasures
         
-        cp Includes/WeatherMeasures/CurrentForecast.inc release/Includes/WeatherMeasures/
-        cp Includes/WeatherMeasures/7DaysForecast.inc release/Includes/WeatherMeasures/
-        cp Includes/WeatherMeasures/7HoursForecast.inc release/Includes/WeatherMeasures/
-        cp README.md release/
-        cp LICENSE.md release/
+        # Copy files from the actual directory location
+        cp "$WEATHER_MEASURES_DIR"/*.inc release/Includes/WeatherMeasures/
+        cp README.md release/ || echo "README.md not found in root"
+        cp LICENSE.md release/ || echo "LICENSE.md not found in root"
         
         cd release
         zip -r Nurashade-WeatherMeasures.zip .
