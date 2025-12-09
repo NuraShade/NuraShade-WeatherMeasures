@@ -262,9 +262,14 @@ Wind_Speed_Unit=kmh
       <td>Full timestamp for hour N (1-7)</td>
     </tr>
     <tr>
-      <td>Formatted Time</td>
+      <td>Formatted Time (24H)</td>
       <td><code>Measure_Hour{N}_Time_Formatted</code></td>
-      <td>Formatted time in HH:00 format</td>
+      <td>Formatted time in HH:00 format (24-hour)</td>
+    </tr>
+    <tr>
+      <td>Formatted Time (12H)</td>
+      <td><code>Measure_Hour{N}_Time_Formatted_12H</code></td>
+      <td>Formatted time in HH:MM AM/PM format (12-hour)</td>
     </tr>
     <tr>
       <td>Abbreviated Time</td>
@@ -272,9 +277,14 @@ Wind_Speed_Unit=kmh
       <td>Abbreviated time format</td>
     </tr>
     <tr>
-      <td>Abbreviated Formatted Time</td>
+      <td>Abbreviated Formatted Time (24H)</td>
       <td><code>Measure_Hour{N}_Time_Abbreviated_Formatted</code></td>
-      <td>Formatted abbreviated time (hour only)</td>
+      <td>Formatted abbreviated time (hour only) in 24-hour format</td>
+    </tr>
+    <tr>
+      <td>Abbreviated Formatted Time (12H)</td>
+      <td><code>Measure_Hour{N}_Time_Abbreviated_Formatted_12H</code></td>
+      <td>Formatted abbreviated time in H AM/PM format (12-hour)</td>
     </tr>
     <tr>
       <td>Temperature</td>
