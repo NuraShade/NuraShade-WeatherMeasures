@@ -35,21 +35,28 @@ NuraShade Weather Measures is a collection of Rainmeter configuration files that
       <td><code>7HoursForecast.inc</code></td>
       <td>Measures for 7-hour hourly weather forecast including times, temperatures, rounded temperatures, weather codes, weather conditions, weather icons, and day/night indicators</td>
     </tr>
+    <tr>
+      <td><code>Vars.inc</code></td>
+      <td>Global configuration variables including location coordinates, temperature/wind speed units, and formatting options</td>
+    </tr>
   </tbody>
 </table>
 
 ## ⚙️ Configuration
 
-Before using these weather measures, you need to configure your location coordinates:
+Before using these weather measures, you need to configure your location coordinates and preferences:
 
 ```ini
 [Variables]
-Latitude=YOUR_LATITUDE
-Longitude=YOUR_LONGITUDE
+Latitude=29.704813
+Longitude=72.560036
 ; Options: celsius,fahrenheit
 Temperature_Unit=celsius
 ; Options: kmh, mph, ms, kn (kilometers/hour, miles/hour, meters/second, knots)
 Wind_Speed_Unit=kmh
+Time_Stamp_Format_For_Date_And_Day_Name=%Y-%m-%d
+Time_Stamp_Format_For_Sun_Cycle=%Y-%m-%dT%H:%M
+Time_Stamp_Format_For_Hour=%Y-%m-%dT%H:%M
 ```
 
 ## 🌡️ Current Forecast Features
@@ -71,27 +78,27 @@ Wind_Speed_Unit=kmh
     <tr>
       <td>Temperature Rounded</td>
       <td><code>Measure_Current_Temperature_Rounded</code></td>
-      <td>Current air temperature rounded up to nearest integer</td>
+      <td>Current air temperature rounded to nearest integer</td>
     </tr>
     <tr>
       <td>Feels Like</td>
       <td><code>Measure_Feels_Like_Temperature</code></td>
-      <td>Apparent temperature</td>
+      <td>Apparent temperature accounting for wind chill or heat index</td>
     </tr>
     <tr>
       <td>Feels Like Rounded</td>
       <td><code>Measure_Feels_Like_Temperature_Rounded</code></td>
-      <td>Apparent temperature rounded up to nearest integer</td>
+      <td>Apparent temperature rounded to nearest integer</td>
     </tr>
     <tr>
       <td>Weather Condition</td>
       <td><code>Measure_Current_Weather_Code</code></td>
-      <td>Current weather code</td>
+      <td>Numeric weather condition code from Open-Meteo</td>
     </tr>
     <tr>
       <td>Weather Condition Translated</td>
       <td><code>Measure_Weather_Condition_Translated</code></td>
-      <td>Translated weather condition description</td>
+      <td>Human-readable weather condition description</td>
     </tr>
     <tr>
       <td>Weather Icon</td>
@@ -121,12 +128,12 @@ Wind_Speed_Unit=kmh
     <tr>
       <td>Pressure</td>
       <td><code>Measure_Pressure</code></td>
-      <td>Surface pressure</td>
+      <td>Surface atmospheric pressure</td>
     </tr>
     <tr>
       <td>Pressure Rounded</td>
       <td><code>Measure_Pressure_Rounded</code></td>
-      <td>Surface pressure rounded to nearest integer</td>
+      <td>Surface atmospheric pressure rounded to nearest integer</td>
     </tr>
     <tr>
       <td>Visibility</td>
@@ -170,7 +177,7 @@ Wind_Speed_Unit=kmh
     <tr>
       <td>Date</td>
       <td><code>Measure_Day{N}_Date</code></td>
-      <td>Full date for day N (1-7)</td>
+      <td>Full date for day N (1-7) in YYYY-MM-DD format</td>
     </tr>
     <tr>
       <td>Day Name</td>
@@ -185,7 +192,7 @@ Wind_Speed_Unit=kmh
     <tr>
       <td>Max Temperature</td>
       <td><code>Measure_Day{N}_Max_Temperature</code></td>
-      <td>Maximum temperature</td>
+      <td>Maximum temperature for the day</td>
     </tr>
     <tr>
       <td>Max Temperature Rounded</td>
@@ -195,7 +202,7 @@ Wind_Speed_Unit=kmh
     <tr>
       <td>Min Temperature</td>
       <td><code>Measure_Day{N}_Min_Temperature</code></td>
-      <td>Minimum temperature</td>
+      <td>Minimum temperature for the day</td>
     </tr>
     <tr>
       <td>Min Temperature Rounded</td>
@@ -205,7 +212,7 @@ Wind_Speed_Unit=kmh
     <tr>
       <td>Weather Code</td>
       <td><code>Measure_Day{N}_Weather_Code</code></td>
-      <td>Weather condition code</td>
+      <td>Weather condition code for the day</td>
     </tr>
     <tr>
       <td>Weather Condition</td>
@@ -220,7 +227,7 @@ Wind_Speed_Unit=kmh
     <tr>
       <td>Sunrise Time</td>
       <td><code>Measure_Day{N}_Sunrise</code></td>
-      <td>Sunrise time</td>
+      <td>Sunrise time in ISO 8601 format</td>
     </tr>
     <tr>
       <td>Formatted Sunrise Time</td>
@@ -230,7 +237,7 @@ Wind_Speed_Unit=kmh
     <tr>
       <td>Sunset Time</td>
       <td><code>Measure_Day{N}_Sunset</code></td>
-      <td>Sunset time</td>
+      <td>Sunset time in ISO 8601 format</td>
     </tr>
     <tr>
       <td>Formatted Sunset Time</td>
@@ -259,7 +266,7 @@ Wind_Speed_Unit=kmh
     <tr>
       <td>Time</td>
       <td><code>Measure_Hour{N}_Time</code></td>
-      <td>Full timestamp for hour N (1-7)</td>
+      <td>Full timestamp for hour N (1-7) in ISO 8601 format</td>
     </tr>
     <tr>
       <td>Formatted Time (24H)</td>
@@ -299,7 +306,7 @@ Wind_Speed_Unit=kmh
     <tr>
       <td>Weather Code</td>
       <td><code>Measure_Hour{N}_Weather_Code</code></td>
-      <td>Weather condition code</td>
+      <td>Weather condition code for the hour</td>
     </tr>
     <tr>
       <td>Is Day</td>
@@ -330,10 +337,23 @@ Wind_Speed_Unit=kmh
    ```
 
 2. **Configure your location:**
-   Edit the `[Variables]` section in each file to set your latitude and longitude.
+   Edit the `[Variables]` section in `Vars.inc` to set your latitude and longitude.
 
 3. **Customize units (optional):**
    Adjust the `Temperature_Unit` and `Wind_Speed_Unit` variables to your preference.
+
+4. **Reference the measures in your skin:**
+   ```ini
+   [MeterCurrentTemp]
+   Meter=String
+   MeasureName=Measure_Current_Temperature
+   Text=%1°
+   
+   [MeterDay1High]
+   Meter=String
+   MeasureName=Measure_Day1_Max_Temperature
+   Text=High: %1°
+   ```
 
 ## 🌍 Weather Icons Mapping
 
@@ -430,15 +450,6 @@ This project is licensed under the Creative Commons Attribution-ShareAlike 3.0 U
     <img src="https://licensebuttons.net/l/by-sa/3.0/88x31.png" alt="CC BY-SA 3.0">
   </a>
 </div>
-
-You are free to:
-- **Share** — copy and redistribute the material in any medium or format
-- **Adapt** — remix, transform, and build upon the material for any purpose, even commercially
-
-Under the following terms:
-- **Attribution** — You must give appropriate credit, provide a link to the license, and indicate if changes were made.
-- **ShareAlike** — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
-
 <hr>
 
 <div align="center">
