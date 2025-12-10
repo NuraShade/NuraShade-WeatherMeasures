@@ -33,7 +33,7 @@ NuraShade Weather Measures is a collection of Rainmeter configuration files that
     </tr>
     <tr>
       <td><code>7HoursForecast.inc</code></td>
-      <td>Measures for 7-hour hourly weather forecast including times, temperatures, weather codes, weather conditions, weather icons, and day/night indicators</td>
+      <td>Measures for 7-hour hourly weather forecast including times, temperatures, rounded temperatures, weather codes, weather conditions, weather icons, and day/night indicators</td>
     </tr>
   </tbody>
 </table>
@@ -290,6 +290,11 @@ Wind_Speed_Unit=kmh
       <td>Temperature</td>
       <td><code>Measure_Hour{N}_Temperature</code></td>
       <td>Temperature for the hour</td>
+    </tr>
+    <tr>
+      <td>Temperature Rounded</td>
+      <td><code>Measure_Hour{N}_Temperature_Rounded</code></td>
+      <td>Temperature for the hour rounded to nearest integer</td>
     </tr>
     <tr>
       <td>Weather Code</td>

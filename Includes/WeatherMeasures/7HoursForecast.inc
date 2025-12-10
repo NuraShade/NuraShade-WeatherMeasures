@@ -26,7 +26,7 @@
 ; Wind_Speed_Unit=kmh
 Debug=0
 Time_Stamp_Format_For_Hour=%Y-%m-%dT%H:%M
-Substitute_For_HourN_Weather_Icons="^0$":"Clear Sky","^1$":"Mainly Clear","^2$":"Partly Cloudy","^3$":"Overcast","^45$":"Fog","^48$":"Depositing Rime Fog","^51$":"Light Drizzle","^53$":"Moderate Drizzle","^55$":"Dense Drizzle","^56$":"Light Freezing Drizzle","^57$":"Dense Freezing Drizzle","^61$":"Slight Rain","^63$":"Moderate Rain","^65$":"Heavy Rain","^66$":"Light Freezing Rain","^67$":"Heavy Freezing Rain","^71$":"Slight Snow Fall","^73$":"Moderate Snow Fall","^75$":"Heavy Snow Fall","^77$":"Snow Grains","^80$":"Slight Rain Showers","^81$":"Moderate Rain Showers","^82$":"Violent Rain Showers","^85$":"Slight Snow Showers","^86$":"Heavy Snow Showers","^95$":"Thunderstorm","^96$":"Thunderstorm with Slight Hail","^99$":"Thunderstorm with Heavy Hail"
+Substitute_For_HourN_Weather_Icons="^1000$":"ClearDay.png","^0$":"ClearNight.png","^1001$":"MainlyClearDay.png","^1$":"MainlyClearNight.png","^1002$":"PartlyCloudyDay.png","^2$":"PartlyCloudyNight.png","^(100)?3$":"Overcast.png","^104[58]$":"FoggyDay.png","^4[58]$":"FoggyNight.png","^(10)?5[135]$":"Drizzle.png","^(10)?5[67]$":"FreezingRain.png","^(10)?6[135]$":"Rain.png","^(10)?6[67]$":"FreezingRain.png","^(10)?7[1357]$":"Snow.png","^(10)?8[012]$":"Rain.png","^(10)?8[56]$":"Snow.png","^(10)?9[569]$":"ThunderStorm.png"
 Substitute_For_HourN_Weather_Condition_Translated="^0$":"Clear Sky","^1$":"Mainly Clear","^2$":"Partly Cloudy","^3$":"Overcast","^45$":"Fog","^48$":"Depositing Rime Fog","^51$":"Light Drizzle","^53$":"Moderate Drizzle","^55$":"Dense Drizzle","^56$":"Light Freezing Drizzle","^57$":"Dense Freezing Drizzle","^61$":"Slight Rain","^63$":"Moderate Rain","^65$":"Heavy Rain","^66$":"Light Freezing Rain","^67$":"Heavy Freezing Rain","^71$":"Slight Snow Fall","^73$":"Moderate Snow Fall","^75$":"Heavy Snow Fall","^77$":"Snow Grains","^80$":"Slight Rain Showers","^81$":"Moderate Rain Showers","^82$":"Violent Rain Showers","^85$":"Slight Snow Showers","^86$":"Heavy Snow Showers","^95$":"Thunderstorm","^96$":"Thunderstorm with Slight Hail","^99$":"Thunderstorm with Heavy Hail"
 
 [Measure_Weather_Hourly_Parent]
@@ -423,7 +423,6 @@ DynamicVariables=1
 ;============================================================
 ; Next 7 Hours Forecast
 ;============================================================
-
 [Measure_Hour1_Temperature]
 Measure=WebParser
 URL=[Measure_Weather_Hourly_Parent]
@@ -476,6 +475,57 @@ DynamicVariables=1
 Measure=WebParser
 URL=[Measure_Weather_Hourly_Parent]
 StringIndex=14
+Group=Weather
+Disabled=1
+DynamicVariables=1
+;============================================================
+; Next 7 Hours Forecast Rounded
+;============================================================
+[Measure_Hour1_Temperature_Rounded]
+Measure=Calc
+Formula=Round([Measure_Hour1_Temperature],0)
+Group=Weather
+Disabled=1
+DynamicVariables=1
+
+[Measure_Hour2_Temperature_Rounded]
+Measure=Calc
+Formula=Round([Measure_Hour2_Temperature],0)
+Group=Weather
+Disabled=1
+DynamicVariables=1
+
+[Measure_Hour3_Temperature_Rounded]
+Measure=Calc
+Formula=Round([Measure_Hour3_Temperature],0)
+Group=Weather
+Disabled=1
+DynamicVariables=1
+
+[Measure_Hour4_Temperature_Rounded]
+Measure=Calc
+Formula=Round([Measure_Hour4_Temperature],0)
+Group=Weather
+Disabled=1
+DynamicVariables=1
+
+[Measure_Hour5_Temperature_Rounded]
+Measure=Calc
+Formula=Round([Measure_Hour5_Temperature],0)
+Group=Weather
+Disabled=1
+DynamicVariables=1
+
+[Measure_Hour6_Temperature_Rounded]
+Measure=Calc
+Formula=Round([Measure_Hour6_Temperature],0)
+Group=Weather
+Disabled=1
+DynamicVariables=1
+
+[Measure_Hour7_Temperature_Rounded]
+Measure=Calc
+Formula=Round([Measure_Hour7_Temperature],0)
 Group=Weather
 Disabled=1
 DynamicVariables=1
