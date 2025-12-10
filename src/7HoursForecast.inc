@@ -1,7 +1,6 @@
 ;============================================================
 ;  NuraShade Skin
 ;  Copyright (c) 2025 NuraShade
-;  Version 1.0
 ;
 ;  Licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License.
 ;  You are free to:
@@ -17,27 +16,15 @@
 ;
 ;  License Details: https://creativecommons.org/licenses/by-sa/3.0/
 ;============================================================
-[Variables]
-; Latitude=29.704813
-; Longitude=72.560036
-; ;Options: celsius,fahrenheit
-; Temperature_Unit=celsius
-; ; Options: kmh, mph, ms, kn (kilometers/hour, miles/hour, meters/second, knots)
-; Wind_Speed_Unit=kmh
-Debug=0
-Time_Stamp_Format_For_Hour=%Y-%m-%dT%H:%M
-Substitute_For_HourN_Weather_Icons="^1000$":"ClearDay.png","^0$":"ClearNight.png","^1001$":"MainlyClearDay.png","^1$":"MainlyClearNight.png","^1002$":"PartlyCloudyDay.png","^2$":"PartlyCloudyNight.png","^(100)?3$":"Overcast.png","^104[58]$":"FoggyDay.png","^4[58]$":"FoggyNight.png","^(10)?5[135]$":"Drizzle.png","^(10)?5[67]$":"FreezingRain.png","^(10)?6[135]$":"Rain.png","^(10)?6[67]$":"FreezingRain.png","^(10)?7[1357]$":"Snow.png","^(10)?8[012]$":"Rain.png","^(10)?8[56]$":"Snow.png","^(10)?9[569]$":"ThunderStorm.png"
-Substitute_For_HourN_Weather_Condition_Translated="^0$":"Clear Sky","^1$":"Mainly Clear","^2$":"Partly Cloudy","^3$":"Overcast","^45$":"Fog","^48$":"Depositing Rime Fog","^51$":"Light Drizzle","^53$":"Moderate Drizzle","^55$":"Dense Drizzle","^56$":"Light Freezing Drizzle","^57$":"Dense Freezing Drizzle","^61$":"Slight Rain","^63$":"Moderate Rain","^65$":"Heavy Rain","^66$":"Light Freezing Rain","^67$":"Heavy Freezing Rain","^71$":"Slight Snow Fall","^73$":"Moderate Snow Fall","^75$":"Heavy Snow Fall","^77$":"Snow Grains","^80$":"Slight Rain Showers","^81$":"Moderate Rain Showers","^82$":"Violent Rain Showers","^85$":"Slight Snow Showers","^86$":"Heavy Snow Showers","^95$":"Thunderstorm","^96$":"Thunderstorm with Slight Hail","^99$":"Thunderstorm with Heavy Hail"
-
 [Measure_Weather_Hourly_Parent]
 Measure=WebParser
 URL=https://api.open-meteo.com/v1/forecast?latitude=#Latitude#&longitude=#Longitude#&hourly=temperature_2m,weather_code,is_day&timezone=auto&forecast_hours=7
 RegExp=(?siU)"hourly".*?"time":\["([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)"\].*?"temperature_2m":\[([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+)\].*?"weather_code":\[([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)\].*?"is_day":\[([0-1]),([0-1]),([0-1]),([0-1]),([0-1]),([0-1]),([0-1])\]
-UpdateRate=600
-DynamicVariables=1
-Debug=#Debug#
-Debug2File=#@#Debug\WeatherHourly.json
+UpdateRate=#Weather_Update_Rate#
+Debug=#Weather_Debug#
+Debug2File=#7HoursForecast_Debug_Path#
 FinishAction=[!EnableMeasureGroup Weather]
+DynamicVariables=1
 ;============================================================
 ; Hourly Forecast Times
 ;============================================================

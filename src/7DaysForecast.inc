@@ -1,7 +1,6 @@
 ;============================================================
 ;  NuraShade Skin
 ;  Copyright (c) 2025 NuraShade
-;  Version 1.0
 ;
 ;  Licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License.
 ;  You are free to:
@@ -17,28 +16,15 @@
 ;
 ;  License Details: https://creativecommons.org/licenses/by-sa/3.0/
 ;============================================================
-[Variables]
-; Latitude=29.704813
-; Longitude=72.560036
-; ;Options: celsius,fahrenheit
-; Temperature_Unit=celsius
-; ; Options: kmh, mph, ms, kn (kilometers/hour, miles/hour, meters/second, knots)
-; Wind_Speed_Unit=kmh
-Debug=0
-Time_Stamp_Format_For_Date_And_Day_Name=%Y-%m-%d
-Time_Stamp_Format_For_Sun_Cycle=%Y-%m-%dT%H:%M
-Substitute_For_DayN_Weather_Condition_Translated="^0$":"Clear Sky","^1$":"Mainly Clear","^2$":"Partly Cloudy","^3$":"Overcast","^45$":"Fog","^48$":"Depositing Rime Fog","^51$":"Light Drizzle","^53$":"Moderate Drizzle","^55$":"Dense Drizzle","^56$":"Light Freezing Drizzle","^57$":"Dense Freezing Drizzle","^61$":"Slight Rain","^63$":"Moderate Rain","^65$":"Heavy Rain","^66$":"Light Freezing Rain","^67$":"Heavy Freezing Rain","^71$":"Slight Snow Fall","^73$":"Moderate Snow Fall","^75$":"Heavy Snow Fall","^77$":"Snow Grains","^80$":"Slight Rain Showers","^81$":"Moderate Rain Showers","^82$":"Violent Rain Showers","^85$":"Slight Snow Showers","^86$":"Heavy Snow Showers","^95$":"Thunderstorm","^96$":"Thunderstorm with Slight Hail","^99$":"Thunderstorm with Heavy Hail"
-Substitute_For_DayN_Weather_Icon="^0$":"ClearDay.png","^1$":"ClearDay.png","^2$":"PartlyCloudyDay.png","^3$":"Overcast.png","^45$":"FoggyDay.png","^48$":"FoggyDay.png","^51$":"Drizzle.png","^53$":"Drizzle.png","^55$":"Drizzle.png","^56$":"FreezingRain.png","^57$":"FreezingRain.png","^61$":"Rain.png","^63$":"Rain.png","^65$":"Rain.png","^66$":"FreezingRain.png","^67$":"FreezingRain.png","^71$":"Snow.png","^73$":"Snow.png","^75$":"Snow.png","^77$":"Snow.png","^80$":"Rain.png","^81$":"Rain.png","^82$":"Rain.png","^85$":"Snow.png","^86$":"Snow.png","^95$":"ThunderStorm.png","^96$":"ThunderStorm.png","^99$":"ThunderStorm.png"
-
 [Measure_Weather_Daily_Parent]
 Measure=WebParser
 URL=https://api.open-meteo.com/v1/forecast?latitude=#Latitude#&longitude=#Longitude#&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&forecast_days=7&temperature_unit=#Temperature_Unit#
 RegExp=(?siU)"daily".*?"time":\["([0-9-]+)","([0-9-]+)","([0-9-]+)","([0-9-]+)","([0-9-]+)","([0-9-]+)","([0-9-]+)"\].*?"weather_code":\[([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)\].*?"temperature_2m_max":\[([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+)\].*?"temperature_2m_min":\[([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+)\].*?"sunrise":\["([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)"\].*?"sunset":\["([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)","([0-9-T:]+)"\]
-UpdateRate=600
-DynamicVariables=1
-Debug=#Debug#
-Debug2File=#@#Debug\WeatherDaily.json
+UpdateRate=#Weather_Update_Rate#
+Debug=#Weather_Debug#
+Debug2File=#7DaysForecast_Debug_Path#
 FinishAction=[!EnableMeasureGroup Weather]
+DynamicVariables=1
 
 [Measure_Day1_Date]
 Measure=WebParser
